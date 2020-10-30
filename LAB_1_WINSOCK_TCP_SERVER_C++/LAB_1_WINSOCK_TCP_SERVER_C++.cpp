@@ -12,7 +12,7 @@
 #define DEFAULT_BUFFER_LENGTH 512
 #define SERVER_PORT "27015"
 
-DWORD WINAPI clientHandler(LPVOID clientSocket);
+DWORD WINAPI handle_client(LPVOID clientSocket);
 
 bool _finishedWork;
 
@@ -30,7 +30,7 @@ INT64 _counterStart;
 
 struct Message
 {
-	const int client_id;
+	const int client_index;
 	const float initial_interval;
 	const float final_interval;
 	const int precision;
@@ -155,7 +155,7 @@ int main(int argc, char* argv[])
 		if (clientSocket != INVALID_SOCKET)
 		{
 			DWORD threadId;
-			CreateThread(NULL, NULL, clientHandler, &clientSocket, NULL, &threadId);
+			CreateThread(NULL, NULL, handle_client, &clientSocket, NULL, &threadId);
 
 			if (i == _requiredClientCount - 1)
 			{
@@ -188,7 +188,7 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-DWORD WINAPI clientHandler(LPVOID clientSocket)
+DWORD WINAPI handle_client(LPVOID clientSocket)
 {
 	int clientId = _maxOnlineClientCount;
 	SOCKET socket = ((SOCKET*)clientSocket)[0];
@@ -214,7 +214,7 @@ DWORD WINAPI clientHandler(LPVOID clientSocket)
 	if (bytesCount > 0)
 	{
 		printf("Server sent message size of %d bytes\n", bytesCount);
-		printf("Server sent message: { %d, %f, %f, %d, %f }\n\n", mes.client_id, mes.initial_interval, mes.final_interval, mes.precision, mes.square);
+		printf("Server sent message: { %d, %f, %f, %d, %f }\n\n", mes.client_index, mes.initial_interval, mes.final_interval, mes.precision, mes.square);
 	}
 	else
 	{
@@ -227,7 +227,7 @@ DWORD WINAPI clientHandler(LPVOID clientSocket)
 	if (bytesCount > 0)
 	{
 		printf("Server recieved message size of %d bytes\n", bytesCount);
-		printf("Server recieved message: { %d, %f, %f, %d, %f }\n\n", mes.client_id, mes.initial_interval, mes.final_interval, mes.precision, mes.square);
+		printf("Server recieved message: { %d, %f, %f, %d, %f }\n\n", mes.client_index, mes.initial_interval, mes.final_interval, mes.precision, mes.square);
 		_commonSquare += mes.square;
 	}
 	else

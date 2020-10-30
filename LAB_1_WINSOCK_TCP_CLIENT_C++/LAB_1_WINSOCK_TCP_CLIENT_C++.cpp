@@ -106,7 +106,7 @@
 
 struct Message
 {
-	const int client_id;
+	const int client_index;
 	const float initial_interval;
 	const float final_interval;
 	const int precision;
@@ -206,7 +206,7 @@ int main(int argc, char* argv[])
 	if (bytesCount > 0)
 	{
 		printf("Client got message size of %d bytes...\n", bytesCount);
-		printf("Gotten message: { %d, %f, %f, %d, %f }\n\n", mes->client_id, mes->initial_interval, mes->final_interval, mes->precision, mes->square);
+		printf("Gotten message: { %d, %f, %f, %d, %f }\n\n", mes->client_index, mes->initial_interval, mes->final_interval, mes->precision, mes->square);
 	}
 	else
 	{
@@ -214,14 +214,14 @@ int main(int argc, char* argv[])
 	}
 
 	Square(mes);
-	printf("Client #%d calculated square: %f\n\n", mes->client_id, mes->square);
+	printf("Client #%d calculated square: %f\n\n", mes->client_index, mes->square);
 
 	bytesCount = send(serverSocket, messageBuffer, sizeof(Message), 0);
 
 	if (bytesCount > 0)
 	{
 		printf("Client sent message size of %d bytes...\n", bytesCount);
-		printf("Sent message: { %d, %f, %f, %d, %f }\n\n", mes->client_id, mes->initial_interval, mes->final_interval, mes->precision, mes->square);
+		printf("Sent message: { %d, %f, %f, %d, %f }\n\n", mes->client_index, mes->initial_interval, mes->final_interval, mes->precision, mes->square);
 	}
 	else
 	{
