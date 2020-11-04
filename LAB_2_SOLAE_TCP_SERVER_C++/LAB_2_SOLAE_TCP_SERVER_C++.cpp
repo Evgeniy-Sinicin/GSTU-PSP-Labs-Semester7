@@ -45,12 +45,12 @@ LARGE_INTEGER _public_time;
 int main(int argc, char* argv[])
 {
 	printf("Server started to work...\n\n");
-	printf("Enter required client count: ");
-	cin >> _requiredClientCount;
+	//printf("Enter required client count: ");
+	//cin >> _requiredClientCount;
 
 	int funcResult;
 	vector<HANDLE> handles;
-	for (int i = 0; i < _requiredClientCount; i++)
+	for (int i = 0; i < 4; i++)
 	{
 		string path = "./Lab_2_Resources/";
 		string system_path = path + "Matrix_" + to_string(i) + ".txt";
@@ -152,7 +152,7 @@ int main(int argc, char* argv[])
 	_public_time.QuadPart = 0;
 	QueryPerformanceFrequency(&clockFrequency);
 
-	for (int i = 0; i < _requiredClientCount; i++)
+	for (int i = 0; true; i++)
 	{
 		SOCKET _client_socket = accept(serverSocket, NULL, NULL);
 		_client_sockets.push_back(_client_socket);
@@ -248,7 +248,7 @@ DWORD WINAPI handle_client(LPVOID context)
 	name_and_number = name + number;
 
 	//
-	printf("Client %d/%d conneceted to server...\n", message.client_index + 1, _requiredClientCount);
+	printf("Client %d conneceted to server...\n", message.client_index);
 
 	// Ждём всех клиентов
 	//while (message.client_index < _requiredClientCount - 1);

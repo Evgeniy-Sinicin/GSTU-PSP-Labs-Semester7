@@ -14,7 +14,7 @@ namespace LAB_3_SOLAE_TCP_SERVER_CS
 {
     public static class Server
     {
-        public static bool IsClientsReady { get; set; } = false;
+        //public static bool IsClientsReady { get; set; } = false;
         public static int Port { get; } = 27015;
         public static string Name { get; } = "Server";
         public static IPAddress Ip { get; set; } = Dns.GetHostAddresses(Dns.GetHostName())[Dns.GetHostAddresses(Dns.GetHostName()).Length - 1];
@@ -26,9 +26,9 @@ namespace LAB_3_SOLAE_TCP_SERVER_CS
             Say($"IP: {Ip}");
             Say($"Port: {Port}");
 
-            Say(Name, "Enter required clients count: ", false);
-            var requiredClientsCount = int.Parse(Console.ReadLine());
-            var infos = new List<ThreadInfo>(requiredClientsCount);
+            //Say(Name, "Enter required clients count: ", false);
+            //var requiredClientsCount = int.Parse(Console.ReadLine());
+            var infos = new List<ThreadInfo>();
             var isNotFinishedWork = true;
             var address = new IPEndPoint(Ip, Port);
             var server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -43,7 +43,7 @@ namespace LAB_3_SOLAE_TCP_SERVER_CS
 
                 Say("I handle of clients...");
 
-                for (int i = 0; i < requiredClientsCount; i++)
+                for (int i = 0; true; i++)
                 {
                     infos.Add(new ThreadInfo(i, $"Client Handler #{i}", server.Accept()));
 
@@ -52,10 +52,10 @@ namespace LAB_3_SOLAE_TCP_SERVER_CS
                         Say($"Error! I couldn't create thread #{i} :(");
                     }
 
-                    if (i == requiredClientsCount - 1)
-                    {
-                        IsClientsReady = true;
-                    }
+                    //if (i == requiredClientsCount - 1)
+                    //{
+                    //    IsClientsReady = true;
+                    //}
                 }
 
                 Say("I sleep...");
@@ -103,8 +103,8 @@ namespace LAB_3_SOLAE_TCP_SERVER_CS
 
             Say(info.Name, "I start...");
 
-            Say(info.Name, "I wait others...");
-            while (!IsClientsReady);
+            //Say(info.Name, "I wait others...");
+            //while (!IsClientsReady);
 
             try 
             {

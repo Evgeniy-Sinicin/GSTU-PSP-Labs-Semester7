@@ -1,0 +1,17 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "baseUrl": "./",
+    "declaration": false,
+    "downlevelIteration": true,
+    "experimentalDecorators": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "sourceMap": true,
+    "target": "ES2015",
+    "typeRoots": [ "node_modules/@types" ],
+    "lib": [ "ES2018", "DOM" ]
+  },
+  "files": [ "src/main.ts", "src/polyfills.ts" ],
+  "include": ["src/**/*.d.ts"]
+}
