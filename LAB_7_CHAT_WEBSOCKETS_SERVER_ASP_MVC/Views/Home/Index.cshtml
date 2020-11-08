@@ -1,0 +1,44 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <title>Chat</title>
+</head>
+<body>
+    <p>Name: <input type="text" id="user" /></p>
+    <p>Message: <input type="text" id="message" /></p>
+    <input type="button" value="send" id="send" />
+
+    <div id='messages'></div>
+
+    <script type="text/javascript">
+            var socket,
+                $txt = document.getElementById('message');
+                $user = document.getElementById('user');
+                $messages = document.getElementById('messages');
+
+                if (typeof (WebSocket) !== 'undefined') {
+                    socket = new WebSocket("ws://192.168.43.21:88/ChatHandler.ashx");
+                    //socket = new WebSocket("ws://localhost/LAB_7_CHAT_WEBSOCKETS_SERVER_ASP_MVC/ChatHandler.ashx");
+                } else {
+                    socket = new MozWebSocket("ws://192.168.43.21:88/ChatHandler.ashx");
+                    //socket = new MozWebSocket("ws://localhost/LAB_7_CHAT_WEBSOCKETS_SERVER_ASP_MVC/ChatHandler.ashx");
+                }
+
+                socket.onmessage = function (msg) {
+                    var $el = document.createElement('p');
+                    $el.innerHTML = msg.data;
+                    $messages.appendChild($el);
+                };
+
+                socket.onclose = function (event) {
+                    alert('We lost her. Please, update the page');
+                };
+
+                document.getElementById('send').onclick = function () {
+                    socket.send($user.value + ' : ' + $txt.value);
+                    $txt.value = '';
+                };
+    </script>
+</body>
+</html>
