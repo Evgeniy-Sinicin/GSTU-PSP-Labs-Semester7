@@ -1,0 +1,234 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        table, th, td {
+            border: 1px solid black;
+        }
+        caption {
+            font-size: large;
+            font-weight: bold;
+        }
+        button {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to Employees Web Service</h1>
+    <div>
+        <table id="employeesTable"></table>
+        <button onclick="sendRequest('GET', url).then((data) => { initEmployeesTable(data); })" 
+                id="getAllBtn">Get All Employees
+        </button>
+    </div>
+    <br/>
+    <div>
+        <strong>Create Employee Div</strong>
+        <div>
+            <label>Name: <input id="nameInp" type="text" /></label>
+        </div>
+        <div>
+            <label>Age: <input id="ageInp" type="text" /></label>
+        </div>
+        <div>
+            <label>Experience Years: <input id="experienceYearsInp" type="text" /></label>
+        </div>
+        <div>
+            <label>Company Address: <input id="companyAddressInp" type="text" /></label>
+        </div>
+        <button onclick="createEmployee()">Create Employee</button>
+    </div>
+    <br/>
+    <div id="editEmployeesDiv"></div>
+    <script>
+        const url = "http://192.168.43.21:80/EmployeesService/employees";
+        const body = {
+            name: 'Name1',
+            ageStr: '1',
+            experienceYearsStr: '1',
+            companyAddress: 'Adr1'
+        };
+        const employeesTable = document.getElementById("employeesTable");
+        const getAllBtn = document.getElementById("getAllBtn");
+        const editEmployeesDiv = document.getElementById("editEmployeesDiv");
+
+        sendRequest('GET', url).then((data) => initEmployeesTable(data));
+
+        function createEmployee() {
+            let name = document.getElementById('nameInp');
+            let age = document.getElementById('ageInp');
+            let experienceYears = document.getElementById('experienceYearsInp');
+            let companyAddress = document.getElementById('companyAddressInp');
+
+            const employee = {
+                name: name.value,
+                ageStr: age.value,
+                experienceYearsStr: experienceYears.value,
+                companyAddress: companyAddress.value
+            }
+
+            sendRequest('POST', url, employee);
+
+            name.value = '';
+            age.value = '';
+            experienceYears.value = '';
+            companyAddress.value = '';
+
+            getAllBtn.click();
+            getAllBtn.click();
+        }
+
+        function initEmployeesTable(data) {
+            employeesTable.innerHTML = '';
+            let caption = document.createElement('caption');
+            let thead = document.createElement('thead');
+            let tr0 = document.createElement('tr');
+            let thName = document.createElement('th');
+            let thAge = document.createElement('th');
+            let thExperienceYears = document.createElement('th');
+            let thCompanyAddress = document.createElement('th');
+            let thUpdate = document.createElement('th');
+            let thDelete = document.createElement('th');
+            let tbody = document.createElement('tbody');
+            caption.innerHTML = 'Employees Table';
+
+            thName.innerHTML = 'Name';
+            thAge.innerHTML = 'Age';
+            thExperienceYears.innerHTML = 'Experience Years';
+            thCompanyAddress.innerHTML = 'Company Address';
+            thUpdate.innerHTML = '';
+            thDelete.innerHTML = '';
+
+            data.forEach(employee => {
+                let tr = document.createElement('tr');
+                let th0 = document.createElement('th');
+                let th1 = document.createElement('th');
+                let th2 = document.createElement('th');
+                let th3 = document.createElement('th');
+                let th4 = document.createElement('th');
+                let th5 = document.createElement('th');
+                let update = document.createElement('button');
+                let remove = document.createElement('button');
+                th0.innerHTML = employee.name;
+                th1.innerHTML = employee.age;
+                th2.innerHTML = employee.experienceYears;
+                th3.innerHTML = employee.companyAddress;
+                update.innerHTML = 'Edit';
+                remove.innerHTML = 'X';
+
+                update.onclick = function() {
+                    editEmployeesDiv.innerHTML = "";
+
+                    let strong = document.createElement('strong');
+                    let nameDiv = document.createElement('div');
+                    let ageDiv = document.createElement('div');
+                    let experienceYearsDiv = document.createElement('div');
+                    let companyAddressDiv = document.createElement('div');
+                    let nameLabel = document.createElement('label');
+                    let ageLabel = document.createElement('label');
+                    let experienceYearsLabel = document.createElement('label');
+                    let companyAddressLabel = document.createElement('label');
+                    let nameInp = document.createElement('input');
+                    let ageInp = document.createElement('input');
+                    let experienceYearsInp = document.createElement('input');
+                    let companyAddressInp = document.createElement('input');
+                    let button = document.createElement('button');
+
+                    nameInp.type = 'text';
+                    ageInp.type = 'text';
+                    experienceYearsInp.type = 'text';
+                    companyAddressInp.type = 'text';
+                    
+                    nameInp.value = employee.name;
+                    nameInp.readOnly = true;
+                    ageInp.value = employee.age;
+                    experienceYearsInp.value = employee.experienceYears;
+                    companyAddressInp.value = employee.companyAddress;
+
+                    nameLabel.innerHTML = 'Name: ';
+                    ageLabel.innerHTML = 'Age: ';
+                    experienceYearsLabel.innerHTML = 'Experience Years: ';
+                    companyAddressLabel.innerHTML = 'Company Address: ';
+
+                    nameLabel.append(nameInp);
+                    ageLabel.append(ageInp);
+                    experienceYearsLabel.append(experienceYearsInp);
+                    companyAddressLabel.append(companyAddressInp);
+
+                    nameDiv.append(nameLabel);
+                    ageDiv.append(ageLabel);
+                    experienceYearsDiv.append(experienceYearsLabel);
+                    companyAddressDiv.append(companyAddressLabel);
+
+                    button.innerHTML = "Update";
+                    button.onclick = function() {
+                        editEmployeesDiv.innerHTML = "";
+                        const employee = {
+                            name: nameInp.value,
+                            ageStr: ageInp.value,
+                            experienceYearsStr: experienceYearsInp.value,
+                            companyAddress: companyAddressInp.value
+                        };
+
+                        sendRequest('PUT', url, employee);
+                        getAllBtn.click();
+                        getAllBtn.click();
+                    };
+
+                    editEmployeesDiv.append(strong);
+                    editEmployeesDiv.append(nameDiv);
+                    editEmployeesDiv.append(ageDiv);
+                    editEmployeesDiv.append(experienceYearsDiv);
+                    editEmployeesDiv.append(companyAddressDiv);
+                    editEmployeesDiv.append(button);
+                };
+
+                remove.onclick = function() {
+                    sendRequest('DELETE', url + '/' + employee.name);
+                    getAllBtn.click();
+                    getAllBtn.click();
+                };
+                
+                th4.append(update);
+                th5.append(remove);
+                tr.append(th0, th1, th2, th3, th4, th5);
+                tbody.append(tr);
+            });
+
+            employeesTable.append(caption, thead, tbody);
+            thead.append(tr0);
+            tr0.append(thName, thAge, thExperienceYears, thCompanyAddress, thUpdate, thDelete);
+
+            tbody.id = 'employeesTableTbody';
+        }
+
+        function sendRequest(method, url, body = null) {
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+
+                xhr.open(method, url);
+
+                xhr.responseType = 'json';
+                xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+
+                xhr.onload = () => {
+                    if (xhr.status >= 400) {
+                        reject(xhr.response);
+                    } else {
+                        resolve(xhr.response);
+                    }
+                };
+
+                xhr.onerror = () => {
+                    reject(xhr.response);
+                }
+
+                xhr.send(JSON.stringify(body));
+            });
+        }
+    </script>
+</body>
+</html>

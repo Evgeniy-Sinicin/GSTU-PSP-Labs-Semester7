@@ -1,4 +1,5 @@
-﻿using MathNet.Numerics.LinearAlgebra;
+﻿using LAB_5_SOLAE_HTTP_SERVER_CS.Dtos;
+using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
 using System;
 using System.Collections.Generic;
@@ -6,8 +7,10 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Web.Script.Serialization;
 
 namespace LAB_5_SOLAE_HTTP_SERVER_CS
 {
@@ -70,17 +73,7 @@ namespace LAB_5_SOLAE_HTTP_SERVER_CS
 
             var path = $"../../www/{uri}";
 
-            if (uri.Equals("/matrix.html"))
-            {
-                SendMatrixPage(match.Value);
-                return;
-            }
-            else if (uri.Equals("/result.html"))
-            {
-                SendResultPage(request);
-                return;
-            }
-            else if (!File.Exists(path))
+            if (!File.Exists(path))
             {
                 SendError(404);
                 return;
@@ -94,6 +87,13 @@ namespace LAB_5_SOLAE_HTTP_SERVER_CS
                 case ".htm":
                 case ".html":
                 {
+                    if (request.StartsWith("POST") &&
+                        uri.Equals("/matrix.html"))
+                    {
+                        SendResult(request);
+                        return;
+                    }
+
                     contentType = "text/html";
                     break;
                 }
@@ -156,6 +156,47 @@ namespace LAB_5_SOLAE_HTTP_SERVER_CS
             }
 
             fs.Close();
+            _client.Close();
+        }
+
+        private void SendResult(string request)
+        {
+            var separator = "\r\n\r\n";
+            var startPos = request.IndexOf(separator) + separator.Length;
+            var json = request.Substring(startPos);
+            json = json.Remove(json.IndexOf('\0'));
+
+            var jss = new JavaScriptSerializer();
+            var message = jss.Deserialize<Message>(json);
+
+            var size = message.Decisions.Count;
+            var system = DenseMatrix.OfArray(new double[size, size]) as Matrix<double>;
+            var coeffs = DenseMatrix.OfArray(new double[size, 1]) as Matrix<double>;
+
+            for (int i = 0; i < size; i++)
+            {
+                coeffs[i, 0] = message.Coeffs[i];
+
+                for (int j = 0; j < size; j++)
+                {
+                    system[i, j] = message.Matrix[i * size + j];
+                }
+            }
+
+            var decision = system.Inverse() * coeffs;
+
+            for (int i = 0; i < size; i++)
+            {
+                message.Decisions[i] = decision[i, 0];
+            }
+
+            json = jss.Serialize(message);
+
+            var statusCode = $"200 OK";
+            var headers = $"HTTP/1.1 {statusCode}\nContent-Type: application/json\nContent-Length: {json.Length}\n\n";
+            var buffer = Encoding.UTF8.GetBytes($"{headers}{json}");
+
+            _client.GetStream().Write(buffer, 0, buffer.Length);
             _client.Close();
         }
 

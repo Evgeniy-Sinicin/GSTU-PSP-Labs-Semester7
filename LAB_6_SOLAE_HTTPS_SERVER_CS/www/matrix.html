@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>PSP LAB 6</title>
+    <style>
+        strong {
+            font-size: 18pt;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to Matrix Page</h1>
+    <div id="matrixDiv">
+        <strong>Matrix Div</strong>
+        <br/>
+    </div>
+    <br/>
+    <div id="coeffsDiv">
+        <strong>Coeffs Div</strong>
+        <br/>
+    </div>
+    <button onclick="solve()">Solve SLA</button>
+    <br/>
+    <br/>
+    <div id="decisionsDiv">
+    </div>
+    <form action="index.html">
+        <input type="submit" value="Home" />
+    </form>
+    <script>
+        const url = "https://192.168.43.21:443/";
+        const size = document.URL.split("=")[1];
+        const matrixDiv = document.getElementById("matrixDiv");
+        const coeffsDiv = document.getElementById("coeffsDiv");
+        const decisionsDiv = document.getElementById("decisionsDiv");
+
+        for (let i = 0; i < size * size; i++) {
+            let label = document.createElement("label");
+            let input = document.createElement("input");
+            label.innerHTML = "Matrix[" + i + "]: ";
+            input.type = "text";
+            input.id = "matrixInp" + i;
+            matrixDiv.append(label);
+            label.append(input);
+
+            if ((i + 1) % size == 0) {
+                matrixDiv.append(document.createElement("br"));
+            }
+
+            if (i < size) {
+                let label2 = document.createElement("label");
+                let input2 = document.createElement("input");
+                label2.innerHTML = "Coeffs[" + i + "]: ";
+                input2.type = "text";
+                input2.id = "coeffsInp" + i;
+                coeffsDiv.append(label2);
+                label2.append(input2);
+
+                if (i < size - 1) {
+                    coeffsDiv.append(document.createElement("br"));
+                }
+            }
+        }
+
+        function solve() {
+            let matrix = new Array(size * size);
+            let coeffs = new Array(size);
+            let decisions = new Array(size);
+
+            for (let i = 0; i < size * size; i++) {
+                let input = document.getElementById("matrixInp" + i);
+                matrix[i] = input.value;
+
+                if (i < size) {
+                    let input2 = document.getElementById("coeffsInp" + i);
+                    coeffs[i] = input2.value;
+                    decisions[i] = 0;
+                }          
+            }
+
+            let message = {
+                matrix: matrix,
+                coeffs: coeffs,
+                decisions: decisions
+            };
+
+            sendRequest("POST", document.URL, message).then((data) => showDecisions(data));
+        }
+
+        function showDecisions(message) {
+            console.log(message);
+            decisionsDiv.innerHTML = "";
+
+            let strong = document.createElement("strong");
+            strong.innerHTML = "Decisions Div";
+            decisionsDiv.append(strong, document.createElement("br"));
+
+            for (let i = 0; i < size; i++) {
+                let p = document.createElement("label");
+                p.innerHTML = "Decision[" + i + "]: " + message.Decisions[i];
+
+                decisionsDiv.append(p);
+
+                if (i < size - 1) {
+                    decisionsDiv.append(document.createElement("br"));
+                }
+            }
+        }
+
+        function sendRequest(method, url, body = null) {
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+
+                xhr.open(method, url);
+
+                xhr.responseType = 'json';
+                xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+
+                xhr.onload = () => {
+                    if (xhr.status >= 400) {
+                        reject(xhr.response);
+                    } else {
+                        resolve(xhr.response);
+                    }
+                };
+
+                xhr.onerror = () => {
+                    reject(xhr.response);
+                }
+
+                xhr.send(JSON.stringify(body));
+            });
+        }
+    </script>
+</body>
+</html>
